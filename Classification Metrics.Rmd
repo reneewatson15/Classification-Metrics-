@@ -1,0 +1,16 @@
+---
+title: "Classification Metrics"
+author: "Renee Watson"
+date: "2026-09-10"
+output: html_document
+---
+
+# Classification Metrics
+
+## Approach
+
+In this assignment, I will use the pengiun_predictions.csv dataset. My plan is to first load the dataset into R and examine the variables and distribution of the actual classes. I will calculate the null error rate and then evaluate the classification model using probability thresholds of 0.2, 0.5, and 0.8. For each threshold, I will create a confusion matrix and calculate accuracy, precision, recall, and F1 score. I will compare these results to see how changing the threshold affects the number of false positives and false negative and the overall performance of the model.
+
+One data challenge I anticipate is making sure that the positive and negative classes are identified correctly when creating the confusion matrices. I will also need to carefully interpret how lowering or raising the classification threshold changes things.
+
+Data source: <https://raw.githubusercontent.com/reneewatson15/Classification-Metrics-/refs/heads/main/penguin_predictions.csv>
