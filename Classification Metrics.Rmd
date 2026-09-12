@@ -9,8 +9,170 @@ output: html_document
 
 ## Approach
 
-In this assignment, I will use the pengiun_predictions.csv dataset. My plan is to first load the dataset into R and examine the variables and distribution of the actual classes. I will calculate the null error rate and then evaluate the classification model using probability thresholds of 0.2, 0.5, and 0.8. For each threshold, I will create a confusion matrix and calculate accuracy, precision, recall, and F1 score. I will compare these results to see how changing the threshold affects the number of false positives and false negative and the overall performance of the model.
+In this assignment, I will use the penguin_predictions.csv dataset. My plan is to first load the dataset into R and examine the variables and distribution of the actual classes. I will calculate the null error rate and then evaluate the classification model using probability thresholds of 0.2, 0.5, and 0.8. For each threshold, I will create a confusion matrix and calculate accuracy, precision, recall, and F1 score. I will compare these results to see how changing the threshold affects the number of false positives and false negatives and the overall performance of the model.
 
 One data challenge I anticipate is making sure that the positive and negative classes are identified correctly when creating the confusion matrices. I will also need to carefully interpret how lowering or raising the classification threshold changes things.
 
 Data source: <https://raw.githubusercontent.com/reneewatson15/Classification-Metrics-/refs/heads/main/penguin_predictions.csv>
+
+## Codebase
+
+```{r}
+penguins <- read.csv("https://raw.githubusercontent.com/reneewatson15/Classification-Metrics-/refs/heads/main/penguin_predictions.csv")
+
+head(penguins)
+```
+
+## Analysis
+
+```{r}
+# Null Error Rate
+table(penguins$sex)
+
+class_counts <- table(penguins$sex)
+
+null_error_rate <- min(class_counts) / sum(class_counts)
+null_error_rate
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(penguins, aes(x = sex)) +
+  geom_bar() + 
+  labs(
+    title = "Distribution of Actual Penguin Sex",
+    x = "Sex",
+    y = "Count"
+  ) + 
+  theme_minimal()
+```
+
+The dataset contains 54 male penguins and 39 female penguins, making male the majority class. The null error rate is approximately 41.9%. This means that if all observations were classified as the majority class (male), approximately 41.9% would be classified incorrectly. The null error rate matters because it provides a baseline for evaluating the classification model.
+
+### Confusion Matrices
+
+```{r}
+#Threshold = 0.2
+penguins$pred_02 <- ifelse(
+  penguins$.pred_female > 0.2,
+  "female",
+  "male"
+)
+
+table(
+  Actual = penguins$sex,
+  Predicted = penguins$pred_02
+)
+```
+
+True Positive = 37 False Positive = 6 True Negative = 48 False Negative = 2
+
+```{r}
+#Threshold = 0.5
+penguins$pred_05 <- ifelse(
+  penguins$.pred_female > 0.5,
+  "female",
+  "male"
+)
+
+table(
+  Actual = penguins$sex,
+  Predicted = penguins$pred_05
+)
+```
+
+True Positive = 36 False Positive = 3 True Negative = 51 False Negative = 3
+
+```{r}
+#Threshold = 0.8
+penguins$pred_08 <- ifelse(
+  penguins$.pred_female > 0.8,
+  "female",
+  "male"
+)
+
+table(
+  Actual = penguins$sex,
+  Predicted = penguins$pred_08
+)
+```
+
+True Positive = 36 False Positive = 2 True Negative = 52 False Negative = 3
+
+### Performance Metrics
+
+```{r}
+#Threshold = 0.2
+TP <- 37
+FP <- 6
+TN <- 48
+FN <- 2
+
+accuracy_02 <- (TP + TN) / (TP + FP + TN + FN)
+precision_02 <- TP / (TP + FP)
+recall_02 <- TP / (TP + FN)
+
+f1_02 <- 2 * (precision_02 * recall_02) / (precision_02 + recall_02)
+
+accuracy_02
+precision_02
+recall_02
+f1_02
+```
+
+```{r}
+#Threshold = 0.5
+TP <- 36
+FP <- 3
+TN <- 51
+FN <- 3
+
+accuracy_05 <- (TP + TN) / (TP + FP + TN + FN)
+precision_05 <- TP / (TP + FP)
+recall_05 <- TP / (TP + FN)
+
+f1_05 <- 2 * (precision_05 * recall_05) / (precision_05 + recall_05)
+
+accuracy_05
+precision_05
+recall_05
+f1_05
+```
+
+```{r}
+#Threshold = 0.8
+TP <- 36
+FP <- 2
+TN <- 52
+FN <- 3
+
+accuracy_08 <- (TP + TN) / (TP + FP + TN + FN)
+precision_08 <- TP / (TP + FP)
+recall_08 <- TP / (TP + FN)
+
+f1_08 <- 2 * (precision_08 * recall_08) / (precision_08 + recall_08)
+
+accuracy_08
+precision_08
+recall_08
+f1_08
+```
+
+```{r}
+metrics_table <- data.frame(
+  Threshold = c(0.2, 0.5, 0.8), 
+  Accuracy = c(accuracy_02, accuracy_05, accuracy_08),
+  Precision = c(precision_02, precision_05, precision_08),
+  Recall = c(recall_02, recall_05, recall_08),
+  F1_Score = c(f1_02, f1_05, f1_08)
+)
+
+metrics_table
+```
+
+##Conclusion
+
+Overall, the classification model performed well across all three probability thresholds. The results showed that changing the threshold affected the model's performance. The 0.2 threshold had the highest recall, while the 0.8 threshold had the highest accuracy, precision, and F1 score. This shows that selecting a classification threshold depends on the goal of the model and whether reducing false positives or false negatives is more important. 
+
+One real-world scenario where a 0.2 threshold is preferable would be disease screening. A lower threshold could be preferable because we would want to identify as many people who might have the disease as possible. This could help reduce the number of people with the disease who are incorrectly classified as negative. One real-world scenario where a 0.8 threshold is preferable would be an email spam detection system. A higher threshold would require the model to be more confident before classifying an email as spam. This could help reduce false positives and prevent legitimate emails from being incorrectly sent to the spam folder.
